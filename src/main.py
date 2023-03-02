@@ -165,34 +165,30 @@ def pop_spaces(grid: int_arr) -> int_arr:
     return grid
 
 
-def show_objects(grid: int_arr, pieces: obj_arr, points: np.int_) -> None:
-    print(f"Points: {points}")
-    g = np.chararray(grid.shape, unicode=True)
-    g[grid == 0] = u"\u25A1"
-    g[grid == 1] = u"\u25A0"
+def format_ui(grid: int_arr, pieces: obj_arr, points: np.int_) -> str:
+    formatted_points = f"Points: {points}"
     
-    print("\n")
-    print(f"{g[0,0]} {g[0,1]} {g[0,2]}   {g[0,3]} {g[0,4]} {g[0,5]}   {g[0,6]} {g[0,7]} {g[0,8]}")
-    print(f"{g[1,0]} {g[1,1]} {g[1,2]}   {g[1,3]} {g[1,4]} {g[1,5]}   {g[1,6]} {g[1,7]} {g[1,8]}")
-    print(f"{g[2,0]} {g[2,1]} {g[2,2]}   {g[2,3]} {g[2,4]} {g[2,5]}   {g[2,6]} {g[2,7]} {g[2,8]}")
-    print("\n")     
-    print(f"{g[3,0]} {g[3,1]} {g[3,2]}   {g[3,3]} {g[3,4]} {g[3,5]}   {g[3,6]} {g[3,7]} {g[3,8]}")
-    print(f"{g[4,0]} {g[4,1]} {g[4,2]}   {g[4,3]} {g[4,4]} {g[4,5]}   {g[4,6]} {g[4,7]} {g[4,8]}")
-    print(f"{g[5,0]} {g[5,1]} {g[5,2]}   {g[5,3]} {g[5,4]} {g[5,5]}   {g[5,6]} {g[5,7]} {g[5,8]}")
-    print("\n")     
-    print(f"{g[6,0]} {g[6,1]} {g[6,2]}   {g[6,3]} {g[6,4]} {g[6,5]}   {g[6,6]} {g[6,7]} {g[6,8]}")
-    print(f"{g[7,0]} {g[7,1]} {g[7,2]}   {g[7,3]} {g[7,4]} {g[7,5]}   {g[7,6]} {g[7,7]} {g[7,8]}")
-    print(f"{g[8,0]} {g[8,1]} {g[8,2]}   {g[8,3]} {g[8,4]} {g[8,5]}   {g[8,6]} {g[8,7]} {g[8,8]}")
-    print("\n")
+    format_grid = np.vectorize(lambda x: u"\u25A1" if x == 0 else u"\u25A0")
+    
+    g = format_grid(grid)
 
-    for piece in pieces:
-        p = np.chararray(piece.shape.shape, unicode=True)
-        p[piece.shape == 0] = u"\u25A1"
-        p[piece.shape == 1] = u"\u25A0"
-        a = [" ".join(p[i, :]) for i in range(p.shape[0])]
-        b = "\n".join(a)
-        print(b)
-        print("\n")
+    
+    formatted_grid = " ".join([
+        "" + cell if i == 0 else
+        "\n\n" + cell if i % 27 == 0 else 
+        "\n" + cell if i % 9 == 0 else 
+        "  " + cell if i % 3 == 0 else cell 
+        for i, cell in enumerate(g.flatten())
+    ])
+
+    formatted_pieces = "\n\n".join([
+        "\n".join([" ".join(piece[i, :]) for i in range(piece.shape[0])])
+        for piece in [format_grid(piece.shape) for piece in pieces]
+    ])
+    
+    return f"{formatted_points}\n\n{formatted_grid}\n\n{formatted_pieces}"
+    
+
     
 
 
@@ -205,7 +201,8 @@ def game_loop():
         while True:
             if pieces.shape[0] == 0: break
             if not np.any([piece.is_available for piece in pieces]): raise Exception("Game Over")
-            show_objects(grid, pieces, points)
+            ui = format_ui(grid, pieces, points)
+            print(ui)
             movement = get_movement(pieces)          
             grid = execute_movement(grid, movement, pieces)
             grid = highlight_squares_to_pop(grid)
