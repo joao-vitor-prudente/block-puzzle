@@ -172,7 +172,6 @@ def format_ui(grid: int_arr, pieces: obj_arr, points: np.int_) -> str:
     
     g = format_grid(grid)
 
-    
     formatted_grid = " ".join([
         "" + cell if i == 0 else
         "\n\n" + cell if i % 27 == 0 else 
@@ -180,17 +179,22 @@ def format_ui(grid: int_arr, pieces: obj_arr, points: np.int_) -> str:
         "  " + cell if i % 3 == 0 else cell 
         for i, cell in enumerate(g.flatten())
     ])
+    
+    # formatted grid without separations
+    
+    # formatted_grid = " ".join([
+    #     "" + cell if i == 0 else
+    #     "\n" + cell if i % 9 == 0 else cell
+    #     for i, cell in enumerate(g.flatten())
+    # ])
 
     formatted_pieces = "\n\n".join([
         "\n".join([" ".join(piece[i, :]) for i in range(piece.shape[0])])
         for piece in [format_grid(piece.shape) for piece in pieces]
     ])
     
-    return f"{formatted_points}\n\n{formatted_grid}\n\n{formatted_pieces}"
+    return f"{formatted_points}\n\n{formatted_grid}\n\n{formatted_pieces}\n"
     
-
-    
-
 
 def game_loop():
     grid = np.zeros((GRID_SIZE, GRID_SIZE), dtype=np.int_)
